@@ -412,7 +412,7 @@ function! YAIFA(...)
                 call s:info('space')
                 "spaces:
                 " => set sts to the number of spaces
-                " =>  tabstop to 8
+                " => set tabstop to 8
                 " => expand tabs to spaces
                 " => set shiftwidth to the number of spaces
                 let cmd = 'setl sts=' . result[1] . ' | setl tabstop=8 | setl expandtab | setl shiftwidth=' . result[1]
