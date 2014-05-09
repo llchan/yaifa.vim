@@ -38,17 +38,6 @@ else
         let s:max_lines = 1024*2
 endif
 
-redir => redir | silent verbose setl sw? | redir END
-let s:swset = len(split(redir,"\n")) > 1
-
-if &expandtab
-        let s:default_indent = 'space'
-        let s:default_tab_width = s:swset ? &sw : 2
-else
-        let s:default_indent = 'tab'
-        let s:default_tab_width = s:swset ? &sw : 4
-endif
-
 
 let s:verbose_quiet = 0
 let s:verbose_info  = 1
@@ -61,7 +50,21 @@ else
         let s:verbosity = s:default_verbosity
 endif
 
-let s:default_result = [s:default_indent, s:default_tab_width]
+
+function! s:get_default_result()
+        redir => redir | silent verbose setl sw? | redir END
+        let l:swset = len(split(redir,"\n")) > 1
+        if &l:expandtab
+                let l:default_indent = 'space'
+                let l:default_tab_width = l:swset ? &l:sw : 2
+        else
+                let l:default_indent = 'tab'
+                let l:default_tab_width = l:swset ? &l:sw : 4
+        endif
+        return [l:default_indent, l:default_tab_width]
+endfunction
+
+
 let s:nb_processed_lines = 0
 
 let s:NoIndent = "NoIndent"
@@ -362,14 +365,14 @@ function! s:results()
                 endfor
 
                 if indent_value == 0
-                        let result = s:default_result
+                        let result = s:get_default_result()
                 else
                         let result = ['space', indent_value]
                 endif
 
         " Detect tab files
         elseif max_line_tab > max_line_mixed && max_line_tab > max_line_space
-                let result = ['tab', s:default_tab_width]
+                let result = ['tab', s:get_default_result()[1]]
 
         " Detect mixed files
         elseif max_line_mixed >= max_line_tab && max_line_mixed > max_line_space
@@ -387,14 +390,14 @@ function! s:results()
                 endfor
 
                 if indent_value == 0
-                        let result = s:default_result
+                        let result = s:get_default_result()
                 else
                         let result = ['mixed', [8, indent_value]]
                 endif
 
         " Not enough information to make a decision
         else
-                let result = s:default_result
+                let result = s:get_default_result()
         endif
         call s:info('Result: ' . string(result))
         return result
@@ -423,7 +426,8 @@ function! YAIFA(...)
                 " => set tabstop to preferred value
                 " => set expandtab to false
                 " => set shiftwidth to tabstop
-                let cmd = 'setl sts=0 | setl tabstop=' . s:default_tab_width . ' | setl noexpandtab | setl shiftwidth=' . s:default_tab_width
+                let l:default_tab_width = s:get_default_result()[1]
+                let cmd = 'setl sts=0 | setl tabstop=' . l:default_tab_width . ' | setl noexpandtab | setl shiftwidth=' . l:default_tab_width
         elseif result[0] == 'mixed'
                 call s:info('mixed')
                 "tab:
@@ -464,9 +468,9 @@ function! YAIFAGetVar(var)
         exec "return s:".a:var
 endfunction
 
-augroup YAIFA
-        au! YAIFA
-        au BufRead * call YAIFA(1)
-augroup End
+" augroup YAIFA
+        " au! YAIFA
+        " au BufRead * call YAIFA(1)
+" augroup End
 
 command -nargs=0 -bar YAIFAMagic call YAIFA()
