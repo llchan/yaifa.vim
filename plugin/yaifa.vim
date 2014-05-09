@@ -38,7 +38,7 @@ else
         let s:max_lines = 1024*2
 endif
 
-redir => redir | silent verbose set sw? | redir END
+redir => redir | silent verbose setl sw? | redir END
 let s:swset = len(split(redir,"\n")) > 1
 
 if &expandtab
@@ -412,10 +412,10 @@ function! YAIFA(...)
                 call s:info('space')
                 "spaces:
                 " => set sts to the number of spaces
-                " => set tabstop to 8
+                " =>  tabstop to 8
                 " => expand tabs to spaces
                 " => set shiftwidth to the number of spaces
-                let cmd = 'set sts=' . result[1] . ' | set tabstop=8 | set expandtab | set shiftwidth=' . result[1]
+                let cmd = 'setl sts=' . result[1] . ' | setl tabstop=8 | setl expandtab | setl shiftwidth=' . result[1]
         elseif result[0] == 'tab'
                 call s:info('tab')
                 "tab:
@@ -423,7 +423,7 @@ function! YAIFA(...)
                 " => set tabstop to preferred value
                 " => set expandtab to false
                 " => set shiftwidth to tabstop
-                let cmd = 'set sts=0 | set tabstop=' . s:default_tab_width . ' | set noexpandtab | set shiftwidth=' . s:default_tab_width
+                let cmd = 'setl sts=0 | setl tabstop=' . s:default_tab_width . ' | setl noexpandtab | setl shiftwidth=' . s:default_tab_width
         elseif result[0] == 'mixed'
                 call s:info('mixed')
                 "tab:
@@ -441,7 +441,7 @@ function! YAIFA(...)
                         let s:sw = s:ts
                 endif
 
-                let cmd = 'set sts=' . s:sw . ' | set tabstop=' . s:ts . ' | set noexpandtab | set shiftwidth=' . s:sw
+                let cmd = 'setl sts=' . s:sw . ' | setl tabstop=' . s:ts . ' | setl noexpandtab | setl shiftwidth=' . s:sw
         endif
         execute cmd
         let b:yaifa_set = 1
